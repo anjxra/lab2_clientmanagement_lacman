@@ -1,0 +1,12 @@
+<link rel="stylesheet" href="/assessment_beginner/style.css">
+
+<div class="container">
+  <div class="nav">
+    <a href="/assessment_beginner/index.php">Dashboard</a>
+    <a href="/assessment_beginner/pages/clients_list.php">Clients</a>
+    <a href="/assessment_beginner/pages/services_list.php">Services</a>
+    <a href="/assessment_beginner/pages/bookings_list.php">Bookings</a>
+    <a href="/assessment_beginner/pages/tools_list_assign.php">Tools</a>
+    <a href="/assessment_beginner/pages/payments_list.php">Payments</a>
+  </div>
+</div>

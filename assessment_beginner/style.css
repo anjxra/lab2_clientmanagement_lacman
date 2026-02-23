@@ -1,0 +1,134 @@
+:root{
+  --bg:#ffffff;
+  --text:#16121d;
+  --muted:#6d5b7a;
+  --border:#eadcf3;
+  --card:#faf7ff;
+  --accent:#6d28d9;
+  --accent-2:#8b5cf6;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  color:var(--text);
+  background:var(--bg);
+  line-height:1.4;
+}
+
+.container{
+  max-width:900px;
+  margin:0 auto;
+  padding:24px 16px;
+}
+
+a{
+  color:var(--accent);
+  text-decoration:none;
+  border-bottom:1px solid var(--border);
+}
+
+a:hover{
+  border-bottom-color:var(--accent);
+}
+
+.nav{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:10px 0 16px 0;
+  border-bottom:1px solid var(--border);
+  margin-bottom:18px;
+}
+
+.nav a{
+  color:var(--accent);
+  border:1px solid var(--border);
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:14px;
+  background:#fff;
+}
+
+.nav a:hover{
+  background:var(--card);
+  border-color:#d8c2ee;
+}
+
+h2{
+  margin:0 0 12px 0;
+  font-size:22px;
+}
+
+.card{
+  border:1px solid var(--border);
+  background:var(--card);
+  border-radius:12px;
+  padding:14px;
+  margin:12px 0 18px 0;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  font-size:14px;
+}
+
+th{
+  background:var(--card);
+  color:var(--muted);
+  font-weight:700;
+}
+
+input{
+  width:100%;
+  max-width:420px;
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  outline:none;
+  font-size:14px;
+  background:#fff;
+}
+
+input:focus{
+  border-color:#c7a7f0;
+  box-shadow:0 0 0 3px rgba(109, 40, 217, 0.12);
+}
+
+button{
+  padding:10px 14px;
+  border:1px solid transparent;
+  border-radius:10px;
+  background:var(--accent);
+  color:#fff;
+  cursor:pointer;
+  font-size:14px;
+}
+
+button:hover{
+  background:var(--accent-2);
+}
+
+.msg{
+  color:#a1002a;
+  margin:10px 0;
+  font-size:14px;
+}
+
+.actions a{
+  border-bottom:none;
+  text-decoration:underline;
+}
