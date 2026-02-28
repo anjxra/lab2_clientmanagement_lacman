@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['username'])) {
+  header("Location: login.php");
+  exit();
+}
+
 include "db.php";
 
 $clients = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM clients"))['c'];
@@ -19,6 +26,7 @@ $revenue = $revRow['s'];
 
 <div class="container">
   <h2>Dashboard</h2>
+  <p>Welcome, <b><?php echo $_SESSION['username']; ?></b>!</p>
 
   <div class="card">
     <ul style="margin:0; padding-left:18px;">
