@@ -4,19 +4,28 @@ include "../db.php";
 $message = "";
 
 if (isset($_POST['assign'])) {
-  $booking_id = $_POST['booking_id'];
-  $tool_id = $_POST['tool_id'];
-  $qty = $_POST['qty_used'];
+  $booking_id = (int) $_POST['booking_id'];
+  $tool_id = (int) $_POST['tool_id'];
+  $qty = (int) $_POST['qty_used'];
 
-  $toolRow = mysqli_fetch_assoc(mysqli_query($conn, "SELECT quantity_available FROM tools WHERE tool_id=$tool_id"));
+  $tStmt = mysqli_prepare($conn, "SELECT quantity_available FROM tools WHERE tool_id=?");
+  mysqli_stmt_bind_param($tStmt, "i", $tool_id);
+  mysqli_stmt_execute($tStmt);
+  $toolRow = mysqli_fetch_assoc(mysqli_stmt_get_result($tStmt));
+  mysqli_stmt_close($tStmt);
 
   if ($qty > $toolRow['quantity_available']) {
     $message = "Not enough available tools!";
   } else {
-    mysqli_query($conn, "INSERT INTO booking_tools (booking_id, tool_id, qty_used)
-      VALUES ($booking_id, $tool_id, $qty)");
+    $insStmt = mysqli_prepare($conn, "INSERT INTO booking_tools (booking_id, tool_id, qty_used) VALUES (?, ?, ?)");
+    mysqli_stmt_bind_param($insStmt, "iii", $booking_id, $tool_id, $qty);
+    mysqli_stmt_execute($insStmt);
+    mysqli_stmt_close($insStmt);
 
-    mysqli_query($conn, "UPDATE tools SET quantity_available = quantity_available - $qty WHERE tool_id=$tool_id");
+    $updStmt = mysqli_prepare($conn, "UPDATE tools SET quantity_available = quantity_available - ? WHERE tool_id=?");
+    mysqli_stmt_bind_param($updStmt, "ii", $qty, $tool_id);
+    mysqli_stmt_execute($updStmt);
+    mysqli_stmt_close($updStmt);
 
     $message = "Tool assigned successfully!";
   }

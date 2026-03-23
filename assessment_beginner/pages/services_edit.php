@@ -1,25 +1,30 @@
 <?php
 include "../db.php";
 
-$id = $_GET['id'];
+$id = (int) $_GET['id'];
 
-$get = mysqli_query($conn, "SELECT * FROM services WHERE service_id = $id");
-$service = mysqli_fetch_assoc($get);
+$get = mysqli_prepare($conn, "SELECT * FROM services WHERE service_id = ?");
+mysqli_stmt_bind_param($get, "i", $id);
+mysqli_stmt_execute($get);
+$service = mysqli_fetch_assoc(mysqli_stmt_get_result($get));
+mysqli_stmt_close($get);
 
 $message = "";
 
 if (isset($_POST['update'])) {
-  $name = $_POST['service_name'];
-  $desc = $_POST['description'];
+  $name = trim($_POST['service_name']);
+  $desc = trim($_POST['description']);
   $rate = $_POST['hourly_rate'];
-  $active = $_POST['is_active'];
+  $active = (int) $_POST['is_active'];
 
   if ($name == "" || $rate == "") {
     $message = "Service Name and Hourly Rate are required!";
   } else {
-    mysqli_query($conn, "UPDATE services
-      SET service_name='$name', description='$desc', hourly_rate='$rate', is_active='$active'
-      WHERE service_id=$id");
+    $stmt = mysqli_prepare($conn, "UPDATE services SET service_name=?, description=?, hourly_rate=?, is_active=? WHERE service_id=?");
+    $rate_float = (float) $rate;
+    mysqli_stmt_bind_param($stmt, "ssdii", $name, $desc, $rate_float, $active, $id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
 
     header("Location: services_list.php");
     exit;

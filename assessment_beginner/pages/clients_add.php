@@ -4,17 +4,18 @@ include "../db.php";
 $message = "";
 
 if (isset($_POST['save'])) {
-  $full_name = $_POST['full_name'];
-  $email = $_POST['email'];
-  $phone = $_POST['phone'];
-  $address = $_POST['address'];
+  $full_name = trim($_POST['full_name']);
+  $email = trim($_POST['email']);
+  $phone = trim($_POST['phone']);
+  $address = trim($_POST['address']);
 
   if ($full_name == "" || $email == "") {
     $message = "Name and Email are required!";
   } else {
-    $sql = "INSERT INTO clients (full_name, email, phone, address)
-            VALUES ('$full_name', '$email', '$phone', '$address')";
-    mysqli_query($conn, $sql);
+    $stmt = mysqli_prepare($conn, "INSERT INTO clients (full_name, email, phone, address) VALUES (?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "ssss", $full_name, $email, $phone, $address);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     header("Location: clients_list.php");
     exit;
   }

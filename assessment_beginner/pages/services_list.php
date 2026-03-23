@@ -2,8 +2,11 @@
 include "../db.php";
 
 if (isset($_GET['delete_id'])) {
-  $delete_id = $_GET['delete_id'];
-  mysqli_query($conn, "UPDATE services SET is_active=0 WHERE service_id=$delete_id");
+  $delete_id = (int) $_GET['delete_id'];
+  $stmt = mysqli_prepare($conn, "UPDATE services SET is_active=0 WHERE service_id=?");
+  mysqli_stmt_bind_param($stmt, "i", $delete_id);
+  mysqli_stmt_execute($stmt);
+  mysqli_stmt_close($stmt);
   header("Location: services_list.php");
   exit;
 }

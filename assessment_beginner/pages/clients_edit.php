@@ -1,26 +1,29 @@
 <?php
 include "../db.php";
 
-$id = $_GET['id'];
+$id = (int) $_GET['id'];
 
-$get = mysqli_query($conn, "SELECT * FROM clients WHERE client_id = $id");
-$client = mysqli_fetch_assoc($get);
+$get = mysqli_prepare($conn, "SELECT * FROM clients WHERE client_id = ?");
+mysqli_stmt_bind_param($get, "i", $id);
+mysqli_stmt_execute($get);
+$client = mysqli_fetch_assoc(mysqli_stmt_get_result($get));
+mysqli_stmt_close($get);
 
 $message = "";
 
 if (isset($_POST['update'])) {
-  $full_name = $_POST['full_name'];
-  $email = $_POST['email'];
-  $phone = $_POST['phone'];
-  $address = $_POST['address'];
+  $full_name = trim($_POST['full_name']);
+  $email = trim($_POST['email']);
+  $phone = trim($_POST['phone']);
+  $address = trim($_POST['address']);
 
   if ($full_name == "" || $email == "") {
     $message = "Name and Email are required!";
   } else {
-    $sql = "UPDATE clients
-            SET full_name='$full_name', email='$email', phone='$phone', address='$address'
-            WHERE client_id=$id";
-    mysqli_query($conn, $sql);
+    $stmt = mysqli_prepare($conn, "UPDATE clients SET full_name=?, email=?, phone=?, address=? WHERE client_id=?");
+    mysqli_stmt_bind_param($stmt, "ssssi", $full_name, $email, $phone, $address, $id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
     header("Location: clients_list.php");
     exit;
   }

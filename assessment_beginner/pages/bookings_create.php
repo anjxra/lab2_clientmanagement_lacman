@@ -7,24 +7,35 @@ $services = mysqli_query($conn, "SELECT * FROM services WHERE is_active=1 ORDER 
 $message = "";
 
 if (isset($_POST['create'])) {
-  $client_id = $_POST['client_id'];
-  $service_id = $_POST['service_id'];
+  $client_id = (int) $_POST['client_id'];
+  $service_id = (int) $_POST['service_id'];
   $booking_date = $_POST['booking_date'];
-  $hours = $_POST['hours'];
+  $hours = (int) $_POST['hours'];
 
   if ($client_id == "" || $service_id == "" || $booking_date == "" || $hours == "") {
     $message = "All fields are required!";
   } else {
-    $s = mysqli_fetch_assoc(mysqli_query($conn, "SELECT hourly_rate FROM services WHERE service_id=$service_id"));
-    $rate = $s['hourly_rate'];
+    $sStmt = mysqli_prepare($conn, "SELECT hourly_rate FROM services WHERE service_id=?");
+    mysqli_stmt_bind_param($sStmt, "i", $service_id);
+    mysqli_stmt_execute($sStmt);
+    $s = mysqli_fetch_assoc(mysqli_stmt_get_result($sStmt));
+    mysqli_stmt_close($sStmt);
+
+    if (!$s) {
+      $message = "Selected service not found!";
+    } else {
+    $rate = (float) $s['hourly_rate'];
 
     $total = $rate * $hours;
 
-    mysqli_query($conn, "INSERT INTO bookings (client_id, service_id, booking_date, hours, hourly_rate_snapshot, total_cost, status)
-      VALUES ($client_id, $service_id, '$booking_date', $hours, $rate, $total, 'PENDING')");
+    $stmt = mysqli_prepare($conn, "INSERT INTO bookings (client_id, service_id, booking_date, hours, hourly_rate_snapshot, total_cost, status) VALUES (?, ?, ?, ?, ?, ?, 'PENDING')");
+    mysqli_stmt_bind_param($stmt, "iisidd", $client_id, $service_id, $booking_date, $hours, $rate, $total);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
 
     header("Location: bookings_list.php");
     exit;
+    }
   }
 }
 ?>

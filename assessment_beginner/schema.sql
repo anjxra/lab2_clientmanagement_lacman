@@ -28,7 +28,9 @@ CREATE TABLE IF NOT EXISTS bookings (
   hourly_rate_snapshot DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   total_cost DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_bookings_client FOREIGN KEY (client_id) REFERENCES clients (client_id),
+  CONSTRAINT fk_bookings_service FOREIGN KEY (service_id) REFERENCES services (service_id)
 );
 
 CREATE TABLE IF NOT EXISTS tools (
@@ -43,7 +45,9 @@ CREATE TABLE IF NOT EXISTS booking_tools (
   booking_id INT NOT NULL,
   tool_id INT NOT NULL,
   qty_used INT NOT NULL DEFAULT 1,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_bt_booking FOREIGN KEY (booking_id) REFERENCES bookings (booking_id),
+  CONSTRAINT fk_bt_tool FOREIGN KEY (tool_id) REFERENCES tools (tool_id)
 );
 
 CREATE TABLE IF NOT EXISTS payments (
@@ -51,7 +55,8 @@ CREATE TABLE IF NOT EXISTS payments (
   booking_id INT NOT NULL,
   amount_paid DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   method VARCHAR(50) NOT NULL DEFAULT 'CASH',
-  payment_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  payment_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_payments_booking FOREIGN KEY (booking_id) REFERENCES bookings (booking_id)
 );
 
 INSERT INTO services (service_name, description, hourly_rate, is_active) VALUES

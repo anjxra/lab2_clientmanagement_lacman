@@ -1,18 +1,26 @@
 <?php
 include "../db.php";
 
-$booking_id = $_GET['booking_id'];
+$booking_id = (int) $_GET['booking_id'];
 
-$booking = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM bookings WHERE booking_id=$booking_id"));
+$bStmt = mysqli_prepare($conn, "SELECT * FROM bookings WHERE booking_id=?");
+mysqli_stmt_bind_param($bStmt, "i", $booking_id);
+mysqli_stmt_execute($bStmt);
+$booking = mysqli_fetch_assoc(mysqli_stmt_get_result($bStmt));
+mysqli_stmt_close($bStmt);
 
-$paidRow = mysqli_fetch_assoc(mysqli_query($conn, "SELECT IFNULL(SUM(amount_paid),0) AS paid FROM payments WHERE booking_id=$booking_id"));
+$pStmt = mysqli_prepare($conn, "SELECT IFNULL(SUM(amount_paid),0) AS paid FROM payments WHERE booking_id=?");
+mysqli_stmt_bind_param($pStmt, "i", $booking_id);
+mysqli_stmt_execute($pStmt);
+$paidRow = mysqli_fetch_assoc(mysqli_stmt_get_result($pStmt));
+mysqli_stmt_close($pStmt);
 $total_paid = $paidRow['paid'];
 
 $balance = $booking['total_cost'] - $total_paid;
 $message = "";
 
 if (isset($_POST['pay'])) {
-  $amount = $_POST['amount_paid'];
+  $amount = (float) $_POST['amount_paid'];
   $method = $_POST['method'];
 
   if ($amount <= 0) {
@@ -20,16 +28,25 @@ if (isset($_POST['pay'])) {
   } else if ($amount > $balance) {
     $message = "Amount exceeds balance!";
   } else {
-    mysqli_query($conn, "INSERT INTO payments (booking_id, amount_paid, method)
-      VALUES ($booking_id, $amount, '$method')");
+    $insStmt = mysqli_prepare($conn, "INSERT INTO payments (booking_id, amount_paid, method) VALUES (?, ?, ?)");
+    mysqli_stmt_bind_param($insStmt, "ids", $booking_id, $amount, $method);
+    mysqli_stmt_execute($insStmt);
+    mysqli_stmt_close($insStmt);
 
-    $paidRow2 = mysqli_fetch_assoc(mysqli_query($conn, "SELECT IFNULL(SUM(amount_paid),0) AS paid FROM payments WHERE booking_id=$booking_id"));
+    $p2Stmt = mysqli_prepare($conn, "SELECT IFNULL(SUM(amount_paid),0) AS paid FROM payments WHERE booking_id=?");
+    mysqli_stmt_bind_param($p2Stmt, "i", $booking_id);
+    mysqli_stmt_execute($p2Stmt);
+    $paidRow2 = mysqli_fetch_assoc(mysqli_stmt_get_result($p2Stmt));
+    mysqli_stmt_close($p2Stmt);
     $total_paid2 = $paidRow2['paid'];
 
     $new_balance = $booking['total_cost'] - $total_paid2;
 
     if ($new_balance <= 0.009) {
-      mysqli_query($conn, "UPDATE bookings SET status='PAID' WHERE booking_id=$booking_id");
+      $updStmt = mysqli_prepare($conn, "UPDATE bookings SET status='PAID' WHERE booking_id=?");
+      mysqli_stmt_bind_param($updStmt, "i", $booking_id);
+      mysqli_stmt_execute($updStmt);
+      mysqli_stmt_close($updStmt);
     }
 
     header("Location: bookings_list.php");

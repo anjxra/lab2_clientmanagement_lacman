@@ -4,19 +4,21 @@ include "../db.php";
 $message = "";
 
 if (isset($_POST['save'])) {
-  $service_name = $_POST['service_name'];
-  $description = $_POST['description'];
+  $service_name = trim($_POST['service_name']);
+  $description = trim($_POST['description']);
   $hourly_rate = $_POST['hourly_rate'];
-  $is_active = $_POST['is_active'];
+  $is_active = (int) $_POST['is_active'];
 
   if ($service_name == "" || $hourly_rate == "") {
     $message = "Service name and hourly rate are required!";
   } else if (!is_numeric($hourly_rate) || $hourly_rate <= 0) {
     $message = "Hourly rate must be a number greater than 0.";
   } else {
-    $sql = "INSERT INTO services (service_name, description, hourly_rate, is_active)
-            VALUES ('$service_name', '$description', '$hourly_rate', '$is_active')";
-    mysqli_query($conn, $sql);
+    $stmt = mysqli_prepare($conn, "INSERT INTO services (service_name, description, hourly_rate, is_active) VALUES (?, ?, ?, ?)");
+    $rate_float = (float) $hourly_rate;
+    mysqli_stmt_bind_param($stmt, "ssdi", $service_name, $description, $rate_float, $is_active);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
 
     header("Location: services_list.php");
     exit;
